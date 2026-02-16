@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run LMJ POS",
+			"type": "shell",
+			"command": "C:/Users/KCN/Downloads/PROJECT/LMJ RICE RETAILING/.venv/Scripts/python.exe",
+			"args": [
+				"main.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

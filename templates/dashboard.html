@@ -1,0 +1,221 @@
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                <div id="notifToast" class="notif-toast">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+<script>
+// Show notification toast for success
+const notif = document.getElementById('notifToast');
+if (notif) {
+    notif.classList.add('show');
+    setTimeout(() => {
+        notif.classList.remove('show');
+    }, 2500);
+}
+</script>
+<style>
+            .inventory-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 22px 22px;
+                justify-content: flex-start;
+                margin-bottom: 18px;
+            }
+            .inventory-card {
+                background: #f8fafc;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(79,140,255,0.07), 0 2px 8px rgba(0,0,0,0.03);
+                padding: 14px 18px 14px 18px;
+                min-width: 150px;
+                flex: 1 0 150px;
+                max-width: 170px;
+                margin: 0 auto;
+                transition: box-shadow 0.18s, transform 0.18s;
+                position: relative;
+                overflow: hidden;
+            }
+            .inventory-card:hover {
+                box-shadow: 0 6px 18px #4f8cff22, 0 2px 8px rgba(0,0,0,0.08);
+                transform: translateY(-2px) scale(1.015);
+            }
+            .inventory-card .rice-title {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: #2d3a4b;
+                margin-bottom: 5px;
+                letter-spacing: 0.5px;
+            }
+            .inventory-card .rice-price {
+                color: #2563eb;
+                font-size: 1.08rem;
+                font-weight: 700;
+                margin-bottom: 6px;
+            }
+            .inventory-card .rice-stock {
+                margin-top: 2px;
+                color: #256029;
+                font-weight: 500;
+                font-size: 0.97rem;
+            }
+        .notif-toast {
+            position: fixed;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22c55e;
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 24px rgba(34, 197, 94, 0.18);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s, top 0.4s;
+        }
+        .notif-toast.show {
+            opacity: 1;
+            top: 56px;
+            pointer-events: auto;
+        }
+    .fade-in {
+        animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .glow-btn {
+        box-shadow: 0 0 16px #4f8cff80, 0 2px 8px rgba(0,0,0,0.08);
+        transition: box-shadow 0.3s, background 0.2s;
+    }
+    .glow-btn:hover {
+        background: #2563eb;
+        box-shadow: 0 0 32px #2563eb80, 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .msg.success {
+        background: #22c55e;
+        color: #fff;
+        border-radius: 6px;
+        padding: 12px 18px;
+        margin-bottom: 16px;
+        animation: popSuccess 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes popSuccess {
+        0% { transform: scale(0.8); opacity: 0; }
+        60% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); }
+    }
+</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LMJ POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(135deg, #232a34 0%, #4f8cff 100%); margin: 0; transition: background 0.6s; }
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 { color: #2d3a4b; margin-bottom: 32px; font-size: 2rem; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f0f4fa; }
+        .menu-btn { display: inline-block; margin: 0 8px 16px 0; padding: 12px 24px; background: #4f8cff; color: #fff; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+        .menu-btn:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+        <div class="container">
+                <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px;">
+                    <img src="{{ url_for('static', filename='test.png') }}" alt="LMJ Logo" style="width:128px;height:128px;object-fit:contain;margin-bottom:12px;">
+                    <h1 style="text-align:center;">Dashboard</h1>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;" class="fade-in">
+                    <a href="/suppliers" class="menu-btn glow-btn">Suppliers</a>
+                    <a href="/inventory" class="menu-btn glow-btn">Inventory</a>
+                    <a href="/sales" class="menu-btn glow-btn">Sales</a>
+                    <a href="/financial" class="menu-btn glow-btn">Financial Statement</a>
+                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="msg {{ category }} fade-in">{{ message }}</div>
+                        <script>
+                        // Animate page transitions
+                        document.body.classList.add('fade-in');
+
+                        // Animate process sale completion
+                        const msgSuccess = document.querySelector('.msg.success');
+                        if (msgSuccess) {
+                            msgSuccess.style.boxShadow = '0 0 32px #22c55e80, 0 2px 8px rgba(0,0,0,0.12)';
+                            setTimeout(() => {
+                                msgSuccess.style.boxShadow = '';
+                            }, 1200);
+                        }
+                        </script>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <h2>Rice Inventory</h2>
+
+                <div class="inventory-grid">
+                {% for item in inventory %}
+                    <div class="inventory-card">
+                        <div class="rice-title">{{ item['product_name'] }}</div>
+                        <div class="rice-price">₱{{ item['retail_price']|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ kg</span></div>
+                        <div class="rice-stock">Stock: {{ item['total_kilos']|round(2) }} kg</div>
+                    </div>
+                {% endfor %}
+                </div>
+                <h2 style="margin-top:36px;">Process Sale</h2>
+                <form method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="margin-bottom:14px;">
+                            <label for="rice_type" style="font-weight:500;">Rice Type</label>
+                            <select id="rice_type" name="rice_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updatePrice()">
+                                <option value="">Select rice type</option>
+                                {% for item in inventory %}
+                                <option value="{{ item['product_name'] }}" data-price="{{ item['retail_price'] }}">{{ item['product_name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
+                            <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
+                        </div>
+                        <div id="totalPrice" style="margin: 10px 0; font-weight: 500; color: #333;"></div>
+                        <button type="submit" class="menu-btn" style="width:100%;background:#4f8cff;">Process Sale</button>
+                    </form>
+        </html>
+        <script>
+        function updatePrice() {
+            const riceSelect = document.getElementById('rice_type');
+            const qtyInput = document.getElementById('quantity');
+            const totalDiv = document.getElementById('totalPrice');
+            const price = riceSelect.options[riceSelect.selectedIndex]?.getAttribute('data-price');
+            const qty = parseFloat(qtyInput.value);
+            if (price && qty > 0) {
+                const total = (parseFloat(price) * qty).toFixed(2);
+                totalDiv.innerHTML = `Total Price: <span style="color:#2563eb; font-weight:600;">₱${total}</span>`;
+            } else {
+                totalDiv.innerHTML = '';
+            }
+        }
+        </script>
+        </div>
+</body>
+</html>
