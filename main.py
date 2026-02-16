@@ -1,11 +1,9 @@
-import tkinter as tk
-from controllers.app_controller import AppController
 
-def main():
-    root = tk.Tk()
-    root.title("LMJ Rice Retailing POS")
-    app = AppController(root)
-    root.mainloop()
+# Use flaskwebgui to run Flask app in a desktop window
+from flaskwebgui import FlaskUI
+import app as lmj_app
 
 if __name__ == "__main__":
-    main()
+    # FlaskUI(app, server, width, height)
+    ui = FlaskUI(app=lmj_app.app, server="flask", width=1200, height=800)
+    ui.run()

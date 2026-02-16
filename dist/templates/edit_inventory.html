@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Inventory - LMJ POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(135deg, #232a34 0%, #4f8cff 100%); margin: 0; transition: background 0.6s; }
+        .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px 24px; }
+        h2 { color: #2d3a4b; margin-bottom: 24px; font-size: 1.5rem; font-weight: 700; }
+        .back-link { display: inline-block; margin-bottom: 18px; color: #4f8cff; text-decoration: none; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .form-row { margin-bottom: 10px; }
+        .form-row label { display: block; margin-bottom: 4px; color: #2d3a4b; }
+        .form-row input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; background: #4f8cff; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/inventory" class="back-link">&larr; Back to Inventory</a>
+        <h2>Edit Inventory</h2>
+        <form action="/inventory/edit/{{ item['id'] }}" method="post">
+            <div class="form-row">
+                <label for="product_name">Rice Type</label>
+                <input type="text" id="product_name" name="product_name" value="{{ item['product_name'] }}" required>
+            </div>
+            <div class="form-row">
+                <label for="quantity">Quantity (kg)</label>
+                <input type="number" id="quantity" name="quantity" value="{{ item['quantity'] }}" min="1" required>
+            </div>
+            <div class="form-row">
+                <label for="cost_price">Cost Price (₱/kg)</label>
+                <input type="number" id="cost_price" name="cost_price" value="{{ item['cost_price'] }}" min="0" step="0.01" required>
+            </div>
+            <div class="form-row">
+                <label for="retail_price">Retail Price (₱/kg)</label>
+                <input type="number" id="retail_price" name="retail_price" value="{{ item['retail_price'] }}" min="0" step="0.01" required>
+            </div>
+            <button type="submit" class="btn">Update Inventory</button>
+        </form>
+    </div>
+</body>
+</html>

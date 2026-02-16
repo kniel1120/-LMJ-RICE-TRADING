@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Supplier - LMJ POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(135deg, #232a34 0%, #4f8cff 100%); margin: 0; transition: background 0.6s; }
+        .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px 24px; }
+        h2 { color: #2d3a4b; margin-bottom: 24px; font-size: 1.5rem; font-weight: 700; }
+        .back-link { display: inline-block; margin-bottom: 18px; color: #4f8cff; text-decoration: none; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .form-row { margin-bottom: 10px; }
+        .form-row label { display: block; margin-bottom: 4px; color: #2d3a4b; }
+        .form-row input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; background: #4f8cff; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/suppliers" class="back-link">&larr; Back to Suppliers</a>
+        <h2>Edit Supplier</h2>
+        <form action="/suppliers/edit/{{ supplier['id'] }}" method="post">
+            <div class="form-row">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="{{ supplier['name'] }}" required>
+            </div>
+            <div class="form-row">
+                <label for="contact">Contact</label>
+                <input type="text" id="contact" name="contact" value="{{ supplier['contact'] }}">
+            </div>
+            <button type="submit" class="btn">Update Supplier</button>
+        </form>
+    </div>
+</body>
+</html>
