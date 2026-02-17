@@ -26,30 +26,63 @@
         {% endwith %}
         <form action="/inventory/add" method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
             <div style="margin-bottom:14px;">
-                <label for="sack_size" style="font-weight:500;">Sack Size (kg, optional)</label>
-                <input type="number" id="sack_size" name="sack_size" min="1" step="0.01" placeholder="e.g. 25 or 50" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
-            </div>
-            <div style="margin-bottom:14px;">
-                <label for="sack_price" style="font-weight:500;">Sack Price (₱, optional)</label>
-                <input type="number" id="sack_price" name="sack_price" min="0" step="0.01" placeholder="e.g. 1200.00" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                <label for="add_type" style="font-weight:500;">Add By</label>
+                <select id="add_type" name="add_type" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="toggleAddType()">
+                    <option value="kilo">Per Kilo</option>
+                    <option value="sack">Per Sack</option>
+                </select>
             </div>
             <div style="margin-bottom:14px;">
                 <label for="product_name" style="font-weight:500;">Rice Type</label>
                 <input type="text" id="product_name" name="product_name" required placeholder="e.g. Dinorado" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
             </div>
-            <div style="margin-bottom:14px;">
-                <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
-                <input type="number" id="quantity" name="quantity" min="1" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+            <div id="kilo_fields">
+                <div style="margin-bottom:14px;">
+                    <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
+                    <input type="number" id="quantity" name="quantity" min="1" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label for="cost_price" style="font-weight:500;">Cost Price (₱/kg)</label>
+                    <input type="number" id="cost_price" name="cost_price" min="0" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label for="retail_price" style="font-weight:500;">Retail Price (₱/kg)</label>
+                    <input type="number" id="retail_price" name="retail_price" min="0" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
             </div>
-            <div style="margin-bottom:14px;">
-                <label for="cost_price" style="font-weight:500;">Cost Price (₱/kg)</label>
-                <input type="number" id="cost_price" name="cost_price" min="0" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
-            </div>
-            <div style="margin-bottom:14px;">
-                <label for="retail_price" style="font-weight:500;">Retail Price (₱/kg)</label>
-                <input type="number" id="retail_price" name="retail_price" min="0" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+            <div id="sack_fields" style="display:none;">
+                <div style="margin-bottom:14px;">
+                    <label for="sack_size" style="font-weight:500;">Sack Size (kg)</label>
+                    <input type="number" id="sack_size" name="sack_size" min="1" step="0.01" placeholder="e.g. 25 or 50" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label for="sack_qty" style="font-weight:500;">Number of Sacks</label>
+                    <input type="number" id="sack_qty" name="sack_qty" min="1" step="1" placeholder="e.g. 10" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label for="sack_cost" style="font-weight:500;">Cost per Sack (₱)</label>
+                    <input type="number" id="sack_cost" name="sack_cost" min="0" step="0.01" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label for="sack_price" style="font-weight:500;">Retail Price per Sack (₱)</label>
+                    <input type="number" id="sack_price" name="sack_price" min="0" step="0.01" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;">
+                </div>
             </div>
             <button type="submit" class="menu-btn" style="width:100%;background:#22c55e;">Add Rice</button>
+        </form>
+        <script>
+        function toggleAddType() {
+            var addType = document.getElementById('add_type').value;
+            document.getElementById('kilo_fields').style.display = (addType === 'kilo') ? '' : 'none';
+            document.getElementById('sack_fields').style.display = (addType === 'sack') ? '' : 'none';
+            // Set required attributes
+            var kiloInputs = document.querySelectorAll('#kilo_fields input');
+            var sackInputs = document.querySelectorAll('#sack_fields input');
+            kiloInputs.forEach(function(input) { input.required = (addType === 'kilo'); });
+            sackInputs.forEach(function(input) { input.required = (addType === 'sack'); });
+        }
+        document.addEventListener('DOMContentLoaded', toggleAddType);
+        </script
         </form>
         <table style="width:100%;border-collapse:collapse;margin-top:32px;">
             <tr>

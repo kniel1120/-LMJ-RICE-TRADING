@@ -138,13 +138,35 @@ def inventory():
 @app.route('/inventory/add', methods=['POST'])
 def add_inventory():
     product_name = request.form['product_name']
-    quantity = int(request.form['quantity'])
-    cost_price = float(request.form['cost_price'])
-    retail_price = float(request.form['retail_price'])
-    sack_size = request.form.get('sack_size')
-    sack_price = request.form.get('sack_price')
-    sack_size = float(sack_size) if sack_size else None
-    sack_price = float(sack_price) if sack_price else None
+    add_type = request.form.get('add_type', 'kilo')
+    if add_type == 'sack':
+        # Per sack: get sack_size, sack_qty, sack_cost, sack_price
+        sack_size = request.form.get('sack_size')
+        sack_qty = request.form.get('sack_qty')
+        sack_cost = request.form.get('sack_cost')
+        sack_price = request.form.get('sack_price')
+        try:
+            sack_size = float(sack_size)
+            sack_qty = int(sack_qty)
+            sack_cost = float(sack_cost)
+            sack_price = float(sack_price)
+        except Exception:
+            flash('Please enter valid sack details.', 'error')
+            return redirect(url_for('inventory'))
+        quantity = sack_size * sack_qty
+        cost_price = sack_cost / sack_size if sack_size else 0  # cost per kilo
+        retail_price = sack_price / sack_size if sack_size else 0  # retail per kilo
+    else:
+        # Per kilo: get quantity, cost_price, retail_price
+        try:
+            quantity = float(request.form['quantity'])
+            cost_price = float(request.form['cost_price'])
+            retail_price = float(request.form['retail_price'])
+        except Exception:
+            flash('Please enter valid kilo details.', 'error')
+            return redirect(url_for('inventory'))
+        sack_size = None
+        sack_price = None
     execute_db('INSERT INTO inventory (product_name, quantity, cost_price, retail_price, sack_size, sack_price) VALUES (?, ?, ?, ?, ?, ?)', (product_name, quantity, cost_price, retail_price, sack_size, sack_price))
     flash('Rice added to inventory!', 'success')
     return redirect(url_for('inventory'))
