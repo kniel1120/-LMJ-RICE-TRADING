@@ -16,7 +16,7 @@ def initialize_database():
             contact TEXT
         )
     ''')
-    # Inventory Table
+    # Inventory Table (add sack_size and sack_price)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,6 +25,8 @@ def initialize_database():
             quantity INTEGER,
             cost_price REAL,
             retail_price REAL,
+            sack_size REAL,
+            sack_price REAL,
             FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
         )
     ''')
@@ -36,7 +38,7 @@ def initialize_database():
             contact TEXT
         )
     ''')
-    # Sales Table (add cost_price for historical cost tracking)
+    # Sales Table (add cost_price for historical cost tracking, sale_type, sack_size, unit_price)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sales (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +48,9 @@ def initialize_database():
             total REAL,
             cost_price REAL,
             date TEXT,
+            sale_type TEXT, -- 'kilo' or 'sack'
+            sack_size REAL,
+            unit_price REAL,
             FOREIGN KEY (customer_id) REFERENCES customers(id),
             FOREIGN KEY (inventory_id) REFERENCES inventory(id)
         )

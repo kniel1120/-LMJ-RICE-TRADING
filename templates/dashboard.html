@@ -171,8 +171,25 @@ if (notif) {
         table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #f0f4fa; }
-        .menu-btn { display: inline-block; margin: 0 8px 16px 0; padding: 12px 24px; background: #4f8cff; color: #fff; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+        .menu-btn { display: block; margin: 0 0 12px 0; padding: 12px 24px; background: #4f8cff; color: #fff; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; width: 100%; max-width: 320px; }
         .menu-btn:hover { background: #2563eb; }
+        .menu-btn.glow-btn { margin-bottom: 12px; }
+        .dashboard-nav { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; flex-direction: row; }
+        @media (max-width: 900px) {
+            .dashboard-nav { flex-direction: column !important; gap: 8px; align-items: center; }
+        }
+        @media (max-width: 600px) {
+            .dashboard-nav { flex-direction: column !important; gap: 6px; align-items: center; }
+        }
+        @media (max-width: 900px) {
+            .container { max-width: 98vw; padding: 18px 6vw; }
+            .dashboard-nav { flex-direction: column; gap: 8px; }
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 100vw; padding: 8px 2vw; }
+            h1 { font-size: 1.2rem; }
+            .dashboard-nav { flex-direction: column; gap: 6px; }
+        }
     </style>
 </head>
 <body>
@@ -181,7 +198,7 @@ if (notif) {
                     <img src="{{ url_for('static', filename='test.png') }}" alt="LMJ Logo" style="width:128px;height:128px;object-fit:contain;margin-bottom:12px;">
                     <h1 style="text-align:center;">Dashboard</h1>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;" class="fade-in">
+                <div class="dashboard-nav fade-in">
                     <a href="/suppliers" class="menu-btn glow-btn">Suppliers</a>
                     <a href="/inventory" class="menu-btn glow-btn">Inventory</a>
                     <a href="/sales" class="menu-btn glow-btn">Sales</a>
@@ -220,22 +237,98 @@ if (notif) {
                 </div>
                 <h2 style="margin-top:36px;">Process Sale</h2>
                 <form method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-                        <div style="margin-bottom:14px;">
-                            <label for="rice_type" style="font-weight:500;">Rice Type</label>
-                            <select id="rice_type" name="rice_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updatePrice()">
-                                <option value="">Select rice type</option>
-                                {% for item in inventory %}
-                                <option value="{{ item['product_name'] }}" data-price="{{ item['retail_price'] }}">{{ item['product_name'] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div style="margin-bottom:14px;">
-                            <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
-                            <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
-                        </div>
-                        <div id="totalPrice" style="margin: 10px 0; font-weight: 500; color: #333;"></div>
-                        <button type="submit" class="menu-btn" style="width:100%;background:#4f8cff;">Process Sale</button>
-                    </form>
+                    <div style="margin-bottom:14px;">
+                        <label for="rice_type" style="font-weight:500;">Rice Type</label>
+                        <select id="rice_type" name="rice_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updateSaleTypeOptions()">
+                            <option value="">Select rice type</option>
+                            {% for item in inventory %}
+                            <option value="{{ item['product_name'] }}"
+                                data-price="{{ item['retail_price'] }}"
+                                data-sack-size="{{ item['sack_size'] if item['sack_size'] else '' }}"
+                                data-sack-price="{{ item['sack_price'] if item['sack_price'] else '' }}">
+                                {{ item['product_name'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label for="sale_type" style="font-weight:500;">Sale Type</label>
+                        <select id="sale_type" name="sale_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updatePrice()">
+                            <option value="kilo">Per Kilo</option>
+                            <option value="sack">Per Sack</option>
+                        </select>
+                    </div>
+                    <div id="quantity_kilo_div" style="margin-bottom:14px;">
+                        <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
+                        <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
+                    </div>
+                    <div id="quantity_sack_div" style="margin-bottom:14px;display:none;">
+                        <label for="sack_qty" style="font-weight:500;">Quantity (sack)</label>
+                        <input type="number" id="sack_qty" name="sack_qty" min="1" step="1" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
+                        <div id="sack_info" style="font-size:0.98rem;color:#555;margin-top:4px;"></div>
+                    </div>
+                    <div id="totalPrice" style="margin: 10px 0; font-weight: 500; color: #333;"></div>
+                    <button type="submit" class="menu-btn" style="width:100%;background:#4f8cff;">Process Sale</button>
+                </form>
+                <script>
+                function updateSaleTypeOptions() {
+                    const riceSelect = document.getElementById('rice_type');
+                    const saleType = document.getElementById('sale_type');
+                    const selected = riceSelect.options[riceSelect.selectedIndex];
+                    const sackSize = selected.getAttribute('data-sack-size');
+                    const sackPrice = selected.getAttribute('data-sack-price');
+                    // If no sack info, disable sack option
+                    if (!sackSize || !sackPrice) {
+                        saleType.value = 'kilo';
+                        saleType.querySelector('option[value="sack"]').disabled = true;
+                    } else {
+                        saleType.querySelector('option[value="sack"]').disabled = false;
+                    }
+                    updateSaleTypeDisplay();
+                    updatePrice();
+                }
+                function updateSaleTypeDisplay() {
+                    const saleType = document.getElementById('sale_type').value;
+                    document.getElementById('quantity_kilo_div').style.display = saleType === 'kilo' ? '' : 'none';
+                    document.getElementById('quantity_sack_div').style.display = saleType === 'sack' ? '' : 'none';
+                }
+                function updatePrice() {
+                    const riceSelect = document.getElementById('rice_type');
+                    const saleType = document.getElementById('sale_type').value;
+                    const totalDiv = document.getElementById('totalPrice');
+                    const selected = riceSelect.options[riceSelect.selectedIndex];
+                    if (!selected || !selected.value) { totalDiv.innerHTML = ''; return; }
+                    if (saleType === 'kilo') {
+                        const price = selected.getAttribute('data-price');
+                        const qty = parseFloat(document.getElementById('quantity').value);
+                        if (price && qty > 0) {
+                            const total = (parseFloat(price) * qty).toFixed(2);
+                            totalDiv.innerHTML = `Total Price: <span style="color:#2563eb; font-weight:600;">₱${total}</span>`;
+                        } else {
+                            totalDiv.innerHTML = '';
+                        }
+                    } else if (saleType === 'sack') {
+                        const sackPrice = selected.getAttribute('data-sack-price');
+                        const sackSize = selected.getAttribute('data-sack-size');
+                        const qty = parseInt(document.getElementById('sack_qty').value);
+                        const sackInfo = document.getElementById('sack_info');
+                        if (sackSize && sackPrice) {
+                            sackInfo.innerHTML = `Sack Size: <b>${sackSize} kg</b> | Sack Price: <b>₱${parseFloat(sackPrice).toFixed(2)}</b>`;
+                        } else {
+                            sackInfo.innerHTML = '';
+                        }
+                        if (sackPrice && qty > 0) {
+                            const total = (parseFloat(sackPrice) * qty).toFixed(2);
+                            totalDiv.innerHTML = `Total Price: <span style=\"color:#2563eb; font-weight:600;\">₱${total}</span>`;
+                        } else {
+                            totalDiv.innerHTML = '';
+                        }
+                    }
+                }
+                document.getElementById('rice_type').addEventListener('change', updateSaleTypeOptions);
+                document.getElementById('sale_type').addEventListener('change', function() { updateSaleTypeDisplay(); updatePrice(); });
+                updateSaleTypeOptions();
+                </script>
         </html>
         <script>
         function updatePrice() {

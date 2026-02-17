@@ -19,24 +19,59 @@ app.secret_key = 'lmj-secret-key'
 def dashboard():
     if request.method == 'POST':
         rice_type = request.form.get('rice_type')
-        quantity = float(request.form.get('quantity', 0))
-        # Find inventory item
+        sale_type = request.form.get('sale_type', 'kilo')
         item = query_db('SELECT * FROM inventory WHERE product_name = ?', (rice_type,), one=True)
         if not item:
             flash('Selected rice type not found.', 'error')
             return redirect(url_for('dashboard'))
-        # Check available stock
+        # Get current sold quantity
         sales = query_db('SELECT SUM(quantity) as sold_qty FROM sales WHERE inventory_id = ?', (item['id'],), one=True)
         sold_qty = sales['sold_qty'] if sales and sales['sold_qty'] else 0
         available = item['quantity'] - sold_qty
-        if quantity > available:
-            flash(f'Not enough stock for {rice_type}. Only {available} kg available.', 'error')
+        if sale_type == 'kilo':
+            try:
+                quantity = float(request.form.get('quantity', 0))
+            except Exception:
+                quantity = 0
+            if quantity <= 0:
+                flash('Please enter a valid quantity (kg).', 'error')
+                return redirect(url_for('dashboard'))
+            if quantity > available:
+                flash(f'Not enough stock for {rice_type}. Only {available} kg available.', 'error')
+                return redirect(url_for('dashboard'))
+            unit_price = item['retail_price']
+            total = quantity * unit_price
+            sack_size = None
+            sack_price = None
+        elif sale_type == 'sack':
+            try:
+                sack_qty = int(request.form.get('sack_qty', 0))
+            except Exception:
+                sack_qty = 0
+            sack_size = item['sack_size']
+            sack_price = item['sack_price']
+            if not sack_size or not sack_price:
+                flash('Selected rice type does not have sack info.', 'error')
+                return redirect(url_for('dashboard'))
+            quantity = sack_qty * sack_size
+            if sack_qty <= 0 or quantity <= 0:
+                flash('Please enter a valid sack quantity.', 'error')
+                return redirect(url_for('dashboard'))
+            if quantity > available:
+                flash(f'Not enough stock for {rice_type}. Only {available} kg available.', 'error')
+                return redirect(url_for('dashboard'))
+            unit_price = sack_price
+            total = sack_qty * sack_price
+        else:
+            flash('Invalid sale type.', 'error')
             return redirect(url_for('dashboard'))
-        # Insert sale
-        total = quantity * item['retail_price']
-        execute_db('INSERT INTO sales (inventory_id, quantity, total, cost_price, date) VALUES (?, ?, ?, ?, ?)',
-                   (item['id'], quantity, total, item['cost_price'], datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        flash(f'Sale processed for {quantity} kg {rice_type}.', 'success')
+        # Insert sale with new fields
+        execute_db('INSERT INTO sales (inventory_id, quantity, total, cost_price, date, sale_type, unit_price, sack_size, sack_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                   (item['id'], quantity, total, item['cost_price'], datetime.now().strftime('%Y-%m-%d %H:%M:%S'), sale_type, unit_price, sack_size, sack_price))
+        if sale_type == 'kilo':
+            flash(f'Sale processed for {quantity} kg {rice_type}.', 'success')
+        else:
+            flash(f'Sale processed for {sack_qty} sack(s) ({quantity} kg) {rice_type}.', 'success')
         return redirect(url_for('dashboard'))
     # GET: show dashboard
     inventory = query_db('SELECT * FROM inventory ORDER BY product_name')
@@ -106,7 +141,11 @@ def add_inventory():
     quantity = int(request.form['quantity'])
     cost_price = float(request.form['cost_price'])
     retail_price = float(request.form['retail_price'])
-    execute_db('INSERT INTO inventory (product_name, quantity, cost_price, retail_price) VALUES (?, ?, ?, ?)', (product_name, quantity, cost_price, retail_price))
+    sack_size = request.form.get('sack_size')
+    sack_price = request.form.get('sack_price')
+    sack_size = float(sack_size) if sack_size else None
+    sack_price = float(sack_price) if sack_price else None
+    execute_db('INSERT INTO inventory (product_name, quantity, cost_price, retail_price, sack_size, sack_price) VALUES (?, ?, ?, ?, ?, ?)', (product_name, quantity, cost_price, retail_price, sack_size, sack_price))
     flash('Rice added to inventory!', 'success')
     return redirect(url_for('inventory'))
 
@@ -123,7 +162,11 @@ def edit_inventory(item_id):
         quantity = int(request.form['quantity'])
         cost_price = float(request.form['cost_price'])
         retail_price = float(request.form['retail_price'])
-        execute_db('UPDATE inventory SET product_name=?, quantity=?, cost_price=?, retail_price=? WHERE id=?', (product_name, quantity, cost_price, retail_price, item_id))
+        sack_size = request.form.get('sack_size')
+        sack_price = request.form.get('sack_price')
+        sack_size = float(sack_size) if sack_size else None
+        sack_price = float(sack_price) if sack_price else None
+        execute_db('UPDATE inventory SET product_name=?, quantity=?, cost_price=?, retail_price=?, sack_size=?, sack_price=? WHERE id=?', (product_name, quantity, cost_price, retail_price, sack_size, sack_price, item_id))
         flash('Inventory item updated!', 'success')
         return redirect(url_for('inventory'))
     item = query_db('SELECT * FROM inventory WHERE id = ?', (item_id,), one=True)
@@ -211,9 +254,16 @@ def financial():
     start_str = start_dt.strftime('%Y-%m-%d 00:00:00')
     end_str = end_dt.strftime('%Y-%m-%d 23:59:59')
     # Sales and expenses for selected range
-    sales = query_db('SELECT total, quantity, cost_price FROM sales WHERE date >= ? AND date <= ?', (start_str, end_str))
-    revenue = sum([s['total'] for s in sales]) if sales else 0
-    cost = sum([s['quantity'] * s['cost_price'] for s in sales if s['cost_price'] is not None]) if sales else 0
+    sales = query_db('SELECT total, quantity, cost_price, sale_type, unit_price, sack_size, sack_price FROM sales WHERE date >= ? AND date <= ?', (start_str, end_str))
+    # Breakdown by sale type
+    kilo_sales = [s for s in sales if s.get('sale_type') == 'kilo']
+    sack_sales = [s for s in sales if s.get('sale_type') == 'sack']
+    revenue_kilo = sum([s['total'] for s in kilo_sales]) if kilo_sales else 0
+    revenue_sack = sum([s['total'] for s in sack_sales]) if sack_sales else 0
+    cost_kilo = sum([s['quantity'] * s['cost_price'] for s in kilo_sales if s['cost_price'] is not None]) if kilo_sales else 0
+    cost_sack = sum([s['quantity'] * s['cost_price'] for s in sack_sales if s['cost_price'] is not None]) if sack_sales else 0
+    revenue = revenue_kilo + revenue_sack
+    cost = cost_kilo + cost_sack
     expenses = query_db('SELECT * FROM expenses WHERE date >= ? AND date <= ? ORDER BY date DESC', (start_str, end_str))
     total_expenses = sum([e['amount'] for e in expenses]) if expenses else 0
     net = revenue - cost - total_expenses
@@ -231,7 +281,7 @@ def financial():
         execute_db('INSERT INTO expenses (description, amount, date) VALUES (?, ?, ?)', (desc, amount, date_str))
         flash('Expense added!', 'success')
         return redirect(url_for('financial', start_date=start_date, end_date=end_date))
-    return render_template('financial.html', expenses=expenses, revenue=revenue, cost=cost, total_expenses=total_expenses, net=net, start_date=start_date, end_date=end_date, month_days=days)
+    return render_template('financial.html', expenses=expenses, revenue=revenue, cost=cost, total_expenses=total_expenses, net=net, start_date=start_date, end_date=end_date, month_days=days, revenue_kilo=revenue_kilo, revenue_sack=revenue_sack, cost_kilo=cost_kilo, cost_sack=cost_sack)
 
 if __name__ == '__main__':
     import random

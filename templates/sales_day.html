@@ -28,11 +28,16 @@
             <thead>
                 <tr>
                     <th>Rice</th>
+                    <th>Sale Type</th>
                     <th>Quantity (kg)</th>
+                    <th>Unit Price</th>
+                    <th>Sack Size</th>
+                    <th>Sack Price</th>
                     <th>Cost</th>
                     <th>Revenue</th>
                     <th>Net Income</th>
                     <th>Date/Time</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,10 +45,14 @@
                 {% for sale in sales_for_day %}
                 <tr>
                     <td>{{ sale.product_name }}</td>
+                    <td>{{ sale.sale_type|capitalize if sale.sale_type else 'Kilo' }}</td>
                     <td>{{ '%.2f'|format(sale.quantity) }}</td>
+                    <td>₱{{ '%.2f'|format(sale.unit_price if sale.unit_price is not none else sale.retail_price) }}</td>
+                    <td>{% if sale.sack_size %}{{ sale.sack_size }}{% else %}-{% endif %}</td>
+                    <td>{% if sale.sack_price %}₱{{ '%.2f'|format(sale.sack_price) }}{% else %}-{% endif %}</td>
                     <td>₱{{ '%.2f'|format(sale.quantity * sale.cost_price) }}</td>
-                    <td>₱{{ '%.2f'|format(sale.quantity * sale.retail_price) }}</td>
-                    <td>₱{{ '%.2f'|format((sale.quantity * sale.retail_price) - (sale.quantity * sale.cost_price)) }}</td>
+                    <td>₱{{ '%.2f'|format(sale.total if sale.total is not none else sale.quantity * sale.retail_price) }}</td>
+                    <td>₱{{ '%.2f'|format((sale.total if sale.total is not none else sale.quantity * sale.retail_price) - (sale.quantity * sale.cost_price)) }}</td>
                     <td>{{ sale.date | datetimeformat }}</td>
                     <td>
                         <form method="post" action="/sales/edit/{{ sale.id }}" style="display:inline;">
@@ -51,20 +60,9 @@
                         </form>
                     </td>
                 </tr>
-                {% macro datetimeformat(value) %}
-                    {%- set dt = value.split(' ') -%}
-                    {%- set date = dt[0] -%}
-                    {%- set time = dt[1] if dt|length > 1 else '' -%}
-                    {%- if time -%}
-                        {{ date }} {{ time[:2]|int % 12 if time[:2]|int % 12 else 12 }}:{{ time[3:5] }} {{ 'AM' if time[:2]|int < 12 else 'PM' }}
-                    {%- else -%}
-                        {{ value }}
-                    {%- endif -%}
-                {% endmacro %}
-                </tr>
                 {% endfor %}
                 {% else %}
-                <tr><td colspan="6" style="text-align:center; color:#888;">No sales for this day.</td></tr>
+                <tr><td colspan="11" style="text-align:center; color:#888;">No sales for this day.</td></tr>
                 {% endif %}
             </tbody>
         </table>

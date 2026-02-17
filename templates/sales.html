@@ -75,6 +75,9 @@
 <div style="max-width: 500px; margin: 30px auto 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
     <h3 style="margin-top:0;">Total Sales</h3>
     <p>Total Sales for the month: {{ total_sales }}</p>
+    <div style="font-size:0.98rem;color:#555;margin-top:8px;">
+        <b>Note:</b> Sales can be per kilo or per sack. See daily details for breakdown.
+    </div>
 </div>
 {% set total_sales = 0 %}
 {% for sale in sales %}

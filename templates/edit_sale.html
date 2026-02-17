@@ -17,12 +17,34 @@
     <div class="edit-container">
         <h2>Edit Sale</h2>
         <form method="post">
-            <label for="quantity">Quantity (kg)</label>
-            <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" value="{{ sale['quantity'] }}" required>
+            <label for="sale_type">Sale Type</label>
+            <select id="sale_type" name="sale_type" required onchange="updateEditSaleType()">
+                <option value="kilo" {% if sale['sale_type'] == 'kilo' or not sale['sale_type'] %}selected{% endif %}>Per Kilo</option>
+                <option value="sack" {% if sale['sale_type'] == 'sack' %}selected{% endif %}>Per Sack</option>
+            </select>
+            <div id="edit_kilo_div" style="margin-top:10px;">
+                <label for="quantity">Quantity (kg)</label>
+                <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" value="{{ sale['quantity'] if sale['sale_type'] != 'sack' else '' }}">
+            </div>
+            <div id="edit_sack_div" style="margin-top:10px;display:none;">
+                <label for="sack_qty">Quantity (sack)</label>
+                <input type="number" id="sack_qty" name="sack_qty" min="1" step="1" value="{% if sale['sale_type'] == 'sack' and sale['sack_size'] %}{{ (sale['quantity'] // sale['sack_size'])|int }}{% endif %}">
+                <div style="font-size:0.98rem;color:#555;margin-top:4px;">
+                    Sack Size: <b>{{ sale['sack_size'] if sale['sack_size'] else '-' }}</b> | Sack Price: <b>₱{{ sale['sack_price']|round(2) if sale['sack_price'] else '-' }}</b>
+                </div>
+            </div>
             <label for="total">Total (₱)</label>
             <input type="number" id="total" name="total" min="0.01" step="0.01" value="{{ sale['total'] }}" required>
             <button type="submit" class="menu-btn">Save Changes</button>
         </form>
+        <script>
+        function updateEditSaleType() {
+            var type = document.getElementById('sale_type').value;
+            document.getElementById('edit_kilo_div').style.display = (type === 'kilo') ? '' : 'none';
+            document.getElementById('edit_sack_div').style.display = (type === 'sack') ? '' : 'none';
+        }
+        updateEditSaleType();
+        </script>
         <div style="margin-top:18px;text-align:center;">
             <a href="/sales" class="menu-btn" style="background:#888;">Cancel</a>
         </div>

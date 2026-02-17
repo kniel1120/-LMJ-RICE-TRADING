@@ -49,12 +49,20 @@
         </div>
         <div class="summary">
             <div class="summary-card">
-                <div class="label">Revenue (Month)</div>
-                <div class="value">₱{{ revenue|round(2) }}</div>
+                <div class="label">Revenue (Kilo)</div>
+                <div class="value">₱{{ revenue_kilo|round(2) }}</div>
             </div>
             <div class="summary-card">
-                <div class="label">Cost (Month)</div>
-                <div class="value">₱{{ cost|round(2) }}</div>
+                <div class="label">Revenue (Sack)</div>
+                <div class="value">₱{{ revenue_sack|round(2) }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Cost (Kilo)</div>
+                <div class="value">₱{{ cost_kilo|round(2) }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Cost (Sack)</div>
+                <div class="value">₱{{ cost_sack|round(2) }}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Expenses (Month)</div>

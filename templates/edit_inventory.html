@@ -22,23 +22,31 @@
         <a href="/inventory" class="back-link">&larr; Back to Inventory</a>
         <h2>Edit Inventory</h2>
         <form action="/inventory/edit/{{ item['id'] }}" method="post">
-            <div class="form-row">
-                <label for="product_name">Rice Type</label>
-                <input type="text" id="product_name" name="product_name" value="{{ item['product_name'] }}" required>
-            </div>
-            <div class="form-row">
-                <label for="quantity">Quantity (kg)</label>
-                <input type="number" id="quantity" name="quantity" value="{{ item['quantity'] }}" min="1" required>
-            </div>
-            <div class="form-row">
-                <label for="cost_price">Cost Price (₱/kg)</label>
-                <input type="number" id="cost_price" name="cost_price" value="{{ item['cost_price'] }}" min="0" step="0.01" required>
-            </div>
-            <div class="form-row">
-                <label for="retail_price">Retail Price (₱/kg)</label>
-                <input type="number" id="retail_price" name="retail_price" value="{{ item['retail_price'] }}" min="0" step="0.01" required>
-            </div>
-            <button type="submit" class="btn">Update Inventory</button>
+        <div class="form-row">
+            <label for="product_name">Rice Type</label>
+            <input type="text" id="product_name" name="product_name" value="{{ item['product_name'] }}" required>
+        </div>
+        <div class="form-row">
+            <label for="quantity">Quantity (kg)</label>
+            <input type="number" id="quantity" name="quantity" value="{{ item['quantity'] }}" min="1" required>
+        </div>
+        <div class="form-row">
+            <label for="cost_price">Cost Price (₱/kg)</label>
+            <input type="number" id="cost_price" name="cost_price" value="{{ item['cost_price'] }}" min="0" step="0.01" required>
+        </div>
+        <div class="form-row">
+            <label for="retail_price">Retail Price (₱/kg)</label>
+            <input type="number" id="retail_price" name="retail_price" value="{{ item['retail_price'] }}" min="0" step="0.01" required>
+        </div>
+        <div class="form-row">
+            <label for="sack_size">Sack Size (kg, optional)</label>
+            <input type="number" id="sack_size" name="sack_size" value="{{ item['sack_size'] if item['sack_size'] else '' }}" min="1" step="0.01" placeholder="e.g. 25 or 50">
+        </div>
+        <div class="form-row">
+            <label for="sack_price">Sack Price (₱, optional)</label>
+            <input type="number" id="sack_price" name="sack_price" value="{{ item['sack_price'] if item['sack_price'] else '' }}" min="0" step="0.01" placeholder="e.g. 1200.00">
+        </div>
+        <button type="submit" class="btn">Update Inventory</button>
         </form>
     </div>
 </body>
