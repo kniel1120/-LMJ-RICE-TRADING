@@ -1,350 +1,293 @@
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                {% if category == 'success' %}
-                <div id="notifToast" class="notif-toast">{{ message }}</div>
-                {% endif %}
-            {% endfor %}
-        {% endwith %}
-<script>
-// Show notification toast for success
-const notif = document.getElementById('notifToast');
-if (notif) {
-    notif.classList.add('show');
-    setTimeout(() => {
-        notif.classList.remove('show');
-    }, 2500);
-}
-</script>
-<style>
-            .inventory-grid {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 22px 22px;
-                justify-content: flex-start;
-                margin-bottom: 18px;
-            }
-            .inventory-card {
-                background: #f8fafc;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(79,140,255,0.07), 0 2px 8px rgba(0,0,0,0.03);
-                padding: 14px 18px 14px 18px;
-                min-width: 150px;
-                flex: 1 0 150px;
-                max-width: 170px;
-                margin: 0 auto;
-                transition: box-shadow 0.18s, transform 0.18s;
-                position: relative;
-                overflow: hidden;
-            }
-            .inventory-card:hover {
-                box-shadow: 0 6px 18px #4f8cff22, 0 2px 8px rgba(0,0,0,0.08);
-                transform: translateY(-2px) scale(1.015);
-            }
-            .inventory-card .rice-title {
-                font-size: 1.05rem;
-                font-weight: 700;
-                color: #2d3a4b;
-                margin-bottom: 5px;
-                letter-spacing: 0.5px;
-            }
-            .inventory-card .rice-price {
-                color: #2563eb;
-                font-size: 1.08rem;
-                font-weight: 700;
-                margin-bottom: 6px;
-            }
-            .inventory-card .rice-stock {
-                margin-top: 2px;
-                color: #256029;
-                font-weight: 500;
-                font-size: 0.97rem;
-            }
-            @media (max-width: 900px) {
-                .container {
-                    max-width: 98vw;
-                    padding: 18px 6vw;
-                }
-                .inventory-grid {
-                    gap: 12px 12px;
-                }
-                .inventory-card {
-                    min-width: 120px;
-                    max-width: 140px;
-                    padding: 10px 8px;
-                }
-            }
-            @media (max-width: 600px) {
-                .container {
-                    max-width: 100vw;
-                    padding: 8px 2vw;
-                }
-                h1 {
-                    font-size: 1.2rem;
-                }
-                .inventory-grid {
-                    flex-direction: column;
-                    gap: 8px 0;
-                }
-                .inventory-card {
-                    min-width: 90vw;
-                    max-width: 98vw;
-                    margin-bottom: 8px;
-                }
-                .menu-btn {
-                    font-size: 1rem;
-                    padding: 10px 12px;
-                }
-            }
-        .notif-toast {
-            position: fixed;
-            top: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #22c55e;
-            color: #fff;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            box-shadow: 0 4px 24px rgba(34, 197, 94, 0.18);
-            z-index: 9999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s, top 0.4s;
-        }
-        .notif-toast.show {
-            opacity: 1;
-            top: 56px;
-            pointer-events: auto;
-        }
-    .fade-in {
-        animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .glow-btn {
-        box-shadow: 0 0 16px #4f8cff80, 0 2px 8px rgba(0,0,0,0.08);
-        transition: box-shadow 0.3s, background 0.2s;
-    }
-    .glow-btn:hover {
-        background: #2563eb;
-        box-shadow: 0 0 32px #2563eb80, 0 2px 8px rgba(0,0,0,0.12);
-    }
-    .msg.success {
-        background: #22c55e;
-        color: #fff;
-        border-radius: 6px;
-        padding: 12px 18px;
-        margin-bottom: 16px;
-        animation: popSuccess 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    @keyframes popSuccess {
-        0% { transform: scale(0.8); opacity: 0; }
-        60% { transform: scale(1.1); opacity: 1; }
-        100% { transform: scale(1); }
-    }
-</style>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - LMJ POS</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(135deg, #232a34 0%, #4f8cff 100%); margin: 0; transition: background 0.6s; }
-        .container {
-            max-width: 700px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        h1 { color: #2d3a4b; margin-bottom: 32px; font-size: 2rem; font-weight: 700; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f0f4fa; }
-        .menu-btn { display: block; margin: 0 0 12px 0; padding: 12px 24px; background: #4f8cff; color: #fff; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; width: 100%; max-width: 320px; }
-        .menu-btn:hover { background: #2563eb; }
-        .menu-btn.glow-btn { margin-bottom: 12px; }
-        .dashboard-nav { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; flex-direction: row; }
-        @media (max-width: 900px) {
-            .dashboard-nav { flex-direction: column !important; gap: 8px; align-items: center; }
-        }
-        @media (max-width: 600px) {
-            .dashboard-nav { flex-direction: column !important; gap: 6px; align-items: center; }
-        }
-        @media (max-width: 900px) {
-            .container { max-width: 98vw; padding: 18px 6vw; }
-            .dashboard-nav { flex-direction: column; gap: 8px; }
-        }
-        @media (max-width: 600px) {
-            .container { max-width: 100vw; padding: 8px 2vw; }
-            h1 { font-size: 1.2rem; }
-            .dashboard-nav { flex-direction: column; gap: 6px; }
-        }
-    </style>
-</head>
-<body>
-        <div class="container">
-                <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px;">
-                    <img src="{{ url_for('static', filename='test.png') }}" alt="LMJ Logo" style="width:128px;height:128px;object-fit:contain;margin-bottom:12px;">
-                    <h1 style="text-align:center;">Dashboard</h1>
-                </div>
-                <div class="dashboard-nav fade-in">
-                    <a href="/suppliers" class="menu-btn glow-btn">Suppliers</a>
-                    <a href="/inventory" class="menu-btn glow-btn">Inventory</a>
-                    <a href="/sales" class="menu-btn glow-btn">Sales</a>
-                    <a href="/financial" class="menu-btn glow-btn">Financial Statement</a>
-                </div>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="msg {{ category }} fade-in">{{ message }}</div>
-                        <script>
-                        // Animate page transitions
-                        document.body.classList.add('fade-in');
-
-                        // Animate process sale completion
-                        const msgSuccess = document.querySelector('.msg.success');
-                        if (msgSuccess) {
-                            msgSuccess.style.boxShadow = '0 0 32px #22c55e80, 0 2px 8px rgba(0,0,0,0.12)';
-                            setTimeout(() => {
-                                msgSuccess.style.boxShadow = '';
-                            }, 1200);
+        
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Dashboard - LMJ POS</title>
+                    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            font-family: 'Roboto', Arial, sans-serif;
+                            background: linear-gradient(135deg, #232a34 0%, #4f8cff 100%);
+                            margin: 0;
+                            min-height: 100vh;
                         }
-                        </script>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                <h2>Rice Inventory</h2>
-
-                <div class="inventory-grid">
-                {% for item in inventory %}
-                    <div class="inventory-card">
-                        <div class="rice-title">{{ item['product_name'] }}</div>
-                        <div class="rice-price">₱{{ item['retail_price']|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ kg</span></div>
-                        <div class="rice-stock">Stock: {{ item['total_kilos']|round(2) }} kg</div>
-                    </div>
-                {% endfor %}
-                </div>
-                <h2 style="margin-top:36px;">Process Sale</h2>
-                <form method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-                    <div style="margin-bottom:14px;">
-                        <label for="rice_type" style="font-weight:500;">Rice Type</label>
-                        <select id="rice_type" name="rice_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updateSaleTypeOptions()">
-                            <option value="">Select rice type</option>
+                        .container {
+                            max-width: 700px;
+                            margin: 40px auto;
+                            background: #fff;
+                            border-radius: 16px;
+                            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+                            padding: 36px 28px;
+                        }
+                        h1 {
+                            color: #2d3a4b;
+                            margin-bottom: 24px;
+                            font-size: 2.1rem;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                            text-align: center;
+                        }
+                        .dashboard-nav {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 16px;
+                            width: 100%;
+                            margin-bottom: 32px;
+                        }
+                        .menu-btn {
+                            display: block;
+                            padding: 14px 0;
+                            background: linear-gradient(90deg, #4f8cff 0%, #2563eb 100%);
+                            color: #fff;
+                            border: none;
+                            border-radius: 10px;
+                            font-size: 1.18rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            text-decoration: none;
+                            box-shadow: 0 2px 8px rgba(79,140,255,0.07);
+                            transition: background 0.2s, box-shadow 0.2s;
+                            text-align: center;
+                        }
+                        .menu-btn:hover {
+                            background: linear-gradient(90deg, #2563eb 0%, #4f8cff 100%);
+                            box-shadow: 0 6px 18px #4f8cff22;
+                        }
+                        .notif-toast {
+                            position: fixed;
+                            top: 32px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: #22c55e;
+                            color: #fff;
+                            padding: 16px 32px;
+                            border-radius: 8px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            box-shadow: 0 4px 24px rgba(34, 197, 94, 0.18);
+                            z-index: 9999;
+                            opacity: 0;
+                            pointer-events: none;
+                            transition: opacity 0.4s, top 0.4s;
+                        }
+                        .notif-toast.show {
+                            opacity: 1;
+                            top: 56px;
+                            pointer-events: auto;
+                        }
+                        .fade-in {
+                            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                        }
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(40px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .glow-btn {
+                            box-shadow: 0 0 16px #4f8cff80, 0 2px 8px rgba(0,0,0,0.08);
+                            transition: box-shadow 0.3s, background 0.2s;
+                        }
+                        .glow-btn:hover {
+                            background: #2563eb;
+                            box-shadow: 0 0 32px #2563eb80, 0 2px 8px rgba(0,0,0,0.12);
+                        }
+                        .msg.success {
+                            background: #22c55e;
+                            color: #fff;
+                            border-radius: 6px;
+                            padding: 12px 18px;
+                            margin-bottom: 16px;
+                            animation: popSuccess 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+                        }
+                        @keyframes popSuccess {
+                            0% { transform: scale(0.8); opacity: 0; }
+                            60% { transform: scale(1.1); opacity: 1; }
+                            100% { transform: scale(1); }
+                        }
+                        .inventory-grid {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 32px 32px;
+                            justify-content: center;
+                            width: 100%;
+                            margin-bottom: 18px;
+                        }
+                        .inventory-card {
+                            background: #f8fafc;
+                            border-radius: 12px;
+                            box-shadow: 0 2px 8px rgba(79,140,255,0.07), 0 2px 8px rgba(0,0,0,0.03);
+                            padding: 14px 18px;
+                            min-width: 150px;
+                            flex: 1 0 150px;
+                            max-width: 170px;
+                            margin: 0 auto;
+                            transition: box-shadow 0.18s, transform 0.18s;
+                            position: relative;
+                            overflow: hidden;
+                            cursor: pointer;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 6px;
+                            text-align: center;
+                        }
+                        .inventory-card:hover {
+                            box-shadow: 0 6px 18px #4f8cff22, 0 2px 8px rgba(0,0,0,0.08);
+                            transform: translateY(-2px) scale(1.015);
+                        }
+                        .rice-title {
+                            font-size: 1.05rem;
+                            font-weight: 700;
+                            color: #2d3a4b;
+                            margin-bottom: 5px;
+                            letter-spacing: 0.5px;
+                        }
+                        .rice-price {
+                            color: #2563eb;
+                            font-size: 1.08rem;
+                            font-weight: 700;
+                            margin-bottom: 6px;
+                        }
+                        .rice-stock {
+                            margin-top: 2px;
+                            color: #256029;
+                            font-weight: 500;
+                            font-size: 0.97rem;
+                        }
+                        @media (max-width: 900px) {
+                            .container { max-width: 98vw; padding: 18px 6vw; }
+                            .inventory-grid { gap: 12px 12px; }
+                            .inventory-card { min-width: 120px; max-width: 140px; padding: 10px 8px; }
+                        }
+                        @media (max-width: 600px) {
+                            .container { max-width: 100vw; padding: 8px 2vw; }
+                            h1 { font-size: 1.2rem; }
+                            .inventory-grid { flex-direction: column; gap: 8px 0; }
+                            .inventory-card { min-width: 90vw; max-width: 98vw; margin-bottom: 8px; }
+                            .menu-btn { font-size: 1rem; padding: 10px 12px; }
+                        }
+                        .form-section select, .form-section input {
+                            width: 100%;
+                            padding: 10px 8px;
+                            margin-bottom: 14px;
+                            border: 1px solid #e3e8ee;
+                            border-radius: 8px;
+                            font-size: 1rem;
+                            background: #fff;
+                            transition: border 0.2s;
+                        }
+                        .form-section select:focus, .form-section input:focus {
+                            border: 1.5px solid #4f8cff;
+                            outline: none;
+                        }
+                        .process-btn {
+                            width: 100%;
+                            padding: 14px 0;
+                            background: linear-gradient(90deg, #4f8cff 0%, #2563eb 100%);
+                            color: #fff;
+                            border: none;
+                            border-radius: 10px;
+                            font-size: 1.18rem;
+                            font-weight: 600;
+                            transition: background 0.2s, box-shadow 0.2s;
+                        }
+                        .process-btn:hover {
+                            background: linear-gradient(90deg, #2563eb 0%, #4f8cff 100%);
+                            box-shadow: 0 6px 18px #4f8cff22;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px;">
+                            <img src="{{ url_for('static', filename='test.png') }}" alt="LMJ Logo" style="width:128px;height:128px;object-fit:contain;margin-bottom:12px;">
+                            <h1 style="text-align:center;">Dashboard</h1>
+                        </div>
+                        <div class="dashboard-nav fade-in">
+                            <a href="/suppliers" class="menu-btn glow-btn">Suppliers</a>
+                            <a href="/inventory" class="menu-btn glow-btn">Inventory</a>
+                            <a href="/sales" class="menu-btn glow-btn">Sales</a>
+                            <a href="/financial" class="menu-btn glow-btn">Financial Statement</a>
+                        </div>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="msg {{ category }} fade-in">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        <h2>Rice Inventory</h2>
+                        <div class="inventory-grid">
                             {% for item in inventory %}
-                            <option value="{{ item['product_name'] }}"
-                                data-price="{{ item['retail_price'] }}"
-                                data-sack-size="{{ item['sack_size'] if item['sack_size'] else '' }}"
-                                data-sack-price="{{ item['sack_price'] if item['sack_price'] else '' }}">
-                                {{ item['product_name'] }}
-                            </option>
+                                <div class="inventory-card" onclick="selectRice('{{ item.id }}', '{{ item.product_name }}', '{{ item.retail_price }}', '{{ item.sack_price }}', '{{ item.kilos_left }}', '{{ item.sacks_left }}')">
+                                    <div class="rice-title">{{ item.product_name }}</div>
+                                    {% if item.stock_type == 'sack' %}
+                                        <div class="rice-price">₱{{ item.sack_price|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ sack</span></div>
+                                        <div class="rice-stock">Stock: {{ item.sacks_left }} sack(s) ({{ item.sack_size|round(2) }} kg/sack)</div>
+                                    {% else %}
+                                        <div class="rice-price">₱{{ item.retail_price|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ kg</span></div>
+                                        <div class="rice-stock">Stock: {{ item.kilos_left|round(2) }} kg</div>
+                                    {% endif %}
+                                </div>
                             {% endfor %}
-                        </select>
+                        </div>
+                        <form id="saleForm" method="post" action="/process_sale" style="display:none; width:100%; max-width:400px; margin:24px auto 0 auto; background:#f8fafc; border-radius:10px; box-shadow:0 2px 8px rgba(79,140,255,0.07); padding:20px 18px;">
+                                <input type="hidden" id="rice_id" name="rice_id">
+                                <input type="hidden" id="sale_type" name="sale_type">
+                                <div style="font-weight:600; margin-bottom:8px; text-align:center;" id="selectedRiceLabel"></div>
+                                <div class="form-section" style="display:block;">
+                                    <label id="quantityLabel" for="quantity">Quantity</label>
+                                    <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" required placeholder="Enter quantity" style="width:100%;margin-bottom:12px;">
+                                    <div id="priceInfo" style="margin-bottom:8px;text-align:center;"></div>
+                                    <div id="totalInfo" style="font-weight:600;text-align:center;"></div>
+                                </div>
+                                <button type="submit" class="process-btn">Process Sale</button>
+                        </form>
                     </div>
-                    <div style="margin-bottom:14px;">
-                        <label for="sale_type" style="font-weight:500;">Sale Type</label>
-                        <select id="sale_type" name="sale_type" required style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="updatePrice()">
-                            <option value="kilo">Per Kilo</option>
-                            <option value="sack">Per Sack</option>
-                        </select>
-                    </div>
-                    <div id="quantity_kilo_div" style="margin-bottom:14px;">
-                        <label for="quantity" style="font-weight:500;">Quantity (kg)</label>
-                        <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
-                    </div>
-                    <div id="quantity_sack_div" style="margin-bottom:14px;display:none;">
-                        <label for="sack_qty" style="font-weight:500;">Quantity (sack)</label>
-                        <input type="number" id="sack_qty" name="sack_qty" min="1" step="1" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" oninput="updatePrice()">
-                        <div id="sack_info" style="font-size:0.98rem;color:#555;margin-top:4px;"></div>
-                    </div>
-                    <div id="totalPrice" style="margin: 10px 0; font-weight: 500; color: #333;"></div>
-                    <button type="submit" class="menu-btn" style="width:100%;background:#4f8cff;">Process Sale</button>
-                </form>
-                <script>
-                function updateSaleTypeOptions() {
-                    const riceSelect = document.getElementById('rice_type');
-                    const saleType = document.getElementById('sale_type');
-                    const selected = riceSelect.options[riceSelect.selectedIndex];
-                    const sackSize = selected.getAttribute('data-sack-size');
-                    const sackPrice = selected.getAttribute('data-sack-price');
-                    // If no sack info, disable sack option
-                    if (!sackSize || !sackPrice) {
-                        saleType.value = 'kilo';
-                        saleType.querySelector('option[value="sack"]').disabled = true;
-                    } else {
-                        saleType.querySelector('option[value="sack"]').disabled = false;
-                    }
-                    updateSaleTypeDisplay();
-                    updatePrice();
-                }
-                function updateSaleTypeDisplay() {
-                    const saleType = document.getElementById('sale_type').value;
-                    document.getElementById('quantity_kilo_div').style.display = saleType === 'kilo' ? '' : 'none';
-                    document.getElementById('quantity_sack_div').style.display = saleType === 'sack' ? '' : 'none';
-                }
-                function updatePrice() {
-                    const riceSelect = document.getElementById('rice_type');
-                    const saleType = document.getElementById('sale_type').value;
-                    const totalDiv = document.getElementById('totalPrice');
-                    const selected = riceSelect.options[riceSelect.selectedIndex];
-                    if (!selected || !selected.value) { totalDiv.innerHTML = ''; return; }
-                    if (saleType === 'kilo') {
-                        const price = selected.getAttribute('data-price');
-                        const qty = parseFloat(document.getElementById('quantity').value);
-                        if (price && qty > 0) {
-                            const total = (parseFloat(price) * qty).toFixed(2);
-                            totalDiv.innerHTML = `Total Price: <span style="color:#2563eb; font-weight:600;">₱${total}</span>`;
-                        } else {
-                            totalDiv.innerHTML = '';
+                    <script>
+                        // Show notification toast for success
+                        const notif = document.getElementById('notifToast');
+                        if (notif) {
+                            notif.classList.add('show');
+                            setTimeout(() => {
+                                notif.classList.remove('show');
+                            }, 2500);
                         }
-                    } else if (saleType === 'sack') {
-                        const sackPrice = selected.getAttribute('data-sack-price');
-                        const sackSize = selected.getAttribute('data-sack-size');
-                        const qty = parseInt(document.getElementById('sack_qty').value);
-                        const sackInfo = document.getElementById('sack_info');
-                        if (sackSize && sackPrice) {
-                            sackInfo.innerHTML = `Sack Size: <b>${sackSize} kg</b> | Sack Price: <b>₱${parseFloat(sackPrice).toFixed(2)}</b>`;
-                        } else {
-                            sackInfo.innerHTML = '';
+                        // Show sale form when a rice card is clicked
+                        function selectRice(id, riceType, pricePerKilo, pricePerSack, stockKilo, stockSack) {
+                            var form = document.getElementById('saleForm');
+                            var saleTypeInput = document.getElementById('sale_type');
+                            var quantityLabel = document.getElementById('quantityLabel');
+                            var priceInfo = document.getElementById('priceInfo');
+                            var totalInfo = document.getElementById('totalInfo');
+                            var quantityInput = document.getElementById('quantity');
+                            form.reset();
+                            form.style.display = 'block';
+                            document.getElementById('rice_id').value = id;
+                            // Determine if this is a sack or kilo item
+                            let isSack = (parseFloat(pricePerSack) > 0 && parseFloat(stockSack) > 0);
+                            if (isSack) {
+                                saleTypeInput.value = 'Per Sack';
+                                quantityLabel.innerText = 'Sacks';
+                                priceInfo.innerText = '₱' + parseFloat(pricePerSack).toFixed(2) + ' per sack';
+                                document.getElementById('selectedRiceLabel').innerText = riceType + ' (Sack)';
+                            } else {
+                                saleTypeInput.value = 'Per Kilo';
+                                quantityLabel.innerText = 'Kilos';
+                                priceInfo.innerText = '₱' + parseFloat(pricePerKilo).toFixed(2) + ' per kilo';
+                                document.getElementById('selectedRiceLabel').innerText = riceType + ' (Kilo)';
+                            }
+                            totalInfo.innerText = '';
+                            quantityInput.value = '';
+                            // Auto-calculate total on input
+                            quantityInput.oninput = function() {
+                                let qty = parseFloat(quantityInput.value);
+                                if (!qty || qty <= 0) { totalInfo.innerText = ''; return; }
+                                let price = isSack ? parseFloat(pricePerSack) : parseFloat(pricePerKilo);
+                                let total = qty * price;
+                                totalInfo.innerText = 'Total: ₱' + total.toFixed(2);
+                            };
+                            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-                        if (sackPrice && qty > 0) {
-                            const total = (parseFloat(sackPrice) * qty).toFixed(2);
-                            totalDiv.innerHTML = `Total Price: <span style=\"color:#2563eb; font-weight:600;\">₱${total}</span>`;
-                        } else {
-                            totalDiv.innerHTML = '';
-                        }
-                    }
-                }
-                document.getElementById('rice_type').addEventListener('change', updateSaleTypeOptions);
-                document.getElementById('sale_type').addEventListener('change', function() { updateSaleTypeDisplay(); updatePrice(); });
-                updateSaleTypeOptions();
-                </script>
-        </html>
-        <script>
-        function updatePrice() {
-            const riceSelect = document.getElementById('rice_type');
-            const qtyInput = document.getElementById('quantity');
-            const totalDiv = document.getElementById('totalPrice');
-            const price = riceSelect.options[riceSelect.selectedIndex]?.getAttribute('data-price');
-            const qty = parseFloat(qtyInput.value);
-            if (price && qty > 0) {
-                const total = (parseFloat(price) * qty).toFixed(2);
-                totalDiv.innerHTML = `Total Price: <span style="color:#2563eb; font-weight:600;">₱${total}</span>`;
-            } else {
-                totalDiv.innerHTML = '';
-            }
-        }
-        </script>
-        </div>
-</body>
-</html>
+                    </script>
+

@@ -24,7 +24,7 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <form action="/inventory/add" method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <form action="/inventory/add" method="post" id="addInventoryForm" style="background:#f8fafc;border-radius:8px;padding:18px 16px;max-width:400px;margin:0 auto 24px auto;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
             <div style="margin-bottom:14px;">
                 <label for="add_type" style="font-weight:500;">Add By</label>
                 <select id="add_type" name="add_type" style="width:100%;padding:8px;border-radius:4px;border:1px solid #ddd;" onchange="toggleAddType()">
@@ -82,26 +82,54 @@
             sackInputs.forEach(function(input) { input.required = (addType === 'sack'); });
         }
         document.addEventListener('DOMContentLoaded', toggleAddType);
+
+        // Client-side validation for required fields
+        document.getElementById('addInventoryForm').addEventListener('submit', function(e) {
+            var addType = document.getElementById('add_type').value;
+            if (addType === 'sack') {
+                var sackSize = document.getElementById('sack_size').value;
+                var sackQty = document.getElementById('sack_qty').value;
+                var sackCost = document.getElementById('sack_cost').value;
+                var sackPrice = document.getElementById('sack_price').value;
+                if (!sackSize || !sackQty || !sackCost || !sackPrice) {
+                    alert('Please fill in all fields for Per Sack.');
+                    e.preventDefault();
+                }
+            } else if (addType === 'kilo') {
+                var quantity = document.getElementById('quantity').value;
+                var costPrice = document.getElementById('cost_price').value;
+                var retailPrice = document.getElementById('retail_price').value;
+                if (!quantity || !costPrice || !retailPrice) {
+                    alert('Please fill in all fields for Per Kilo.');
+                    e.preventDefault();
+                }
+            }
+        });
         </script
         </form>
         <table style="width:100%;border-collapse:collapse;margin-top:32px;">
             <tr>
                 <th style="background:#f0f4fa;padding:10px;">Rice Type</th>
-                <th style="background:#f0f4fa;padding:10px;">Quantity (kg)</th>
-                <th style="background:#f0f4fa;padding:10px;">Cost Price (₱/kg)</th>
-                <th style="background:#f0f4fa;padding:10px;">Retail Price (₱/kg)</th>
+                <th style="background:#f0f4fa;padding:10px;">Stock</th>
+                <th style="background:#f0f4fa;padding:10px;">Cost Price</th>
+                <th style="background:#f0f4fa;padding:10px;">Retail Price</th>
                 <th style="background:#f0f4fa;padding:10px;">Sack Size (kg)</th>
-                <th style="background:#f0f4fa;padding:10px;">Sack Price (₱)</th>
                 <th style="background:#f0f4fa;padding:10px;">Actions</th>
             </tr>
             {% for item in inventory %}
             <tr>
                 <td style="padding:10px;">{{ item['product_name'] }}</td>
-                <td style="padding:10px;">{{ item['quantity'] }}</td>
-                <td style="padding:10px;">₱{{ item['cost_price']|round(2) }}</td>
-                <td style="padding:10px;">₱{{ item['retail_price']|round(2) }}</td>
-                <td style="padding:10px;">{{ item['sack_size'] if item['sack_size'] else '-' }}</td>
-                <td style="padding:10px;">{% if item['sack_price'] %}₱{{ item['sack_price']|round(2) }}{% else %}-{% endif %}</td>
+                {% if item['sack_size'] and item['sack_size'] > 0 %}
+                    <td style="padding:10px;">{{ item['quantity'] }} sack(s) ({{ item['sack_size']|round(2) }} kg/sack)</td>
+                    <td style="padding:10px;">₱{{ item['cost_price']|round(2) }} / sack</td>
+                    <td style="padding:10px;">₱{{ item['retail_price']|round(2) }} / sack</td>
+                    <td style="padding:10px;">{{ item['sack_size']|round(2) }}</td>
+                {% else %}
+                    <td style="padding:10px;">{{ item['quantity']|round(2) }} kg</td>
+                    <td style="padding:10px;">₱{{ item['cost_price']|round(2) }} / kg</td>
+                    <td style="padding:10px;">₱{{ item['retail_price']|round(2) }} / kg</td>
+                    <td style="padding:10px;">-</td>
+                {% endif %}
                 <td style="padding:10px;">
                     <a href="/inventory/edit/{{ item['id'] }}" class="btn edit" style="background:#4f8cff;color:#fff;padding:6px 12px;border-radius:4px;text-decoration:none;">Edit</a>
                     <form action="/inventory/delete/{{ item['id'] }}" method="post" style="display:inline;">

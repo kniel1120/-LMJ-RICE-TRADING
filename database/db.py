@@ -1,7 +1,12 @@
 import sqlite3
 from flask import g
+import os
 
-DATABASE = 'lmj_pos.db'
+# Use absolute path for the database file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, '..', 'lmj_pos.db')
+DATABASE = os.path.abspath(DATABASE)
+print("USING DATABASE:", DATABASE)
 
 def get_db():
     db = getattr(g, '_database', None)

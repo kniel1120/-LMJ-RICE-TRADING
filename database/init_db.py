@@ -1,14 +1,18 @@
+
 import sqlite3
+import os
 
 DB_NAME = 'lmj_pos.db'
 
 def get_connection():
+    abs_path = os.path.abspath(DB_NAME)
+    print(f"[init_db.py] USING DATABASE: {abs_path}")
     return sqlite3.connect(DB_NAME)
 
 def initialize_database():
     conn = get_connection()
+    print("Connected to database, creating tables...")
     cursor = conn.cursor()
-    # Supplier Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS suppliers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,7 +20,7 @@ def initialize_database():
             contact TEXT
         )
     ''')
-    # Inventory Table (add sack_size and sack_price)
+    print("Created suppliers table")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,7 +34,7 @@ def initialize_database():
             FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
         )
     ''')
-    # Customer Table
+    print("Created inventory table")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +42,7 @@ def initialize_database():
             contact TEXT
         )
     ''')
-    # Sales Table (add cost_price for historical cost tracking, sale_type, sack_size, unit_price)
+    print("Created customers table")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sales (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,14 +52,14 @@ def initialize_database():
             total REAL,
             cost_price REAL,
             date TEXT,
-            sale_type TEXT, -- 'kilo' or 'sack'
+            sale_type TEXT,
             sack_size REAL,
             unit_price REAL,
             FOREIGN KEY (customer_id) REFERENCES customers(id),
             FOREIGN KEY (inventory_id) REFERENCES inventory(id)
         )
     ''')
-    # Expenses Table
+    print("Created sales table")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,8 +68,11 @@ def initialize_database():
             date TEXT NOT NULL
         )
     ''')
+    print("Created expenses table")
     conn.commit()
+    print("All tables created and committed.")
     conn.close()
+    print("Connection closed.")
 
 if __name__ == "__main__":
     initialize_database()
