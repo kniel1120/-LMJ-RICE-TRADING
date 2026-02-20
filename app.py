@@ -18,14 +18,19 @@ def delete_expense(expense_id):
     start_date = request.args.get('start_date') or request.form.get('start_date')
     end_date = request.args.get('end_date') or request.form.get('end_date')
     if start_date and end_date:
+
         return redirect(url_for('financial', start_date=start_date, end_date=end_date))
     else:
         return redirect(url_for('financial'))
+
+# Add missing route for deleting sales
+@app.route('/sales/delete/<int:sale_id>', methods=['POST'])
 def delete_sale(sale_id):
     execute_db('DELETE FROM sales WHERE id = ?', (sale_id,))
     flash('Sale deleted successfully!', 'success')
     ref = request.referrer or url_for('sales')
     return redirect(ref)
+
 app.secret_key = 'lmj-secret-key'
 
 # SMS API PH config
