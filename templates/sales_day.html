@@ -64,46 +64,77 @@
                 {% if sales_for_day %}
                 {% for sale in sales_for_day %}
                 <tr>
-                    <td>{{ sale.product_name }}</td>
-                    <td>{{ sale.sale_type|capitalize if sale.sale_type else 'Kilo' }}</td>
                     <td>
-                        {% if sale.sale_type.lower() == 'per sack' and sale.sack_size %}
-                            {{ (sale.quantity / sale.sack_size)|int }}
-                        {% elif sale.sale_type.lower() == 'per kilo' %}
+                        {{ sale.product_name }}
+                    </td>
+                    <td>
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            Receivable
+                        {% else %}
+                            {{ sale.sale_type|capitalize if sale.sale_type else 'Kilo' }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            -
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per sack' and sale.sack_size %}
+                            {{ (sale.quantity|float / sale.sack_size|float)|int }}
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per kilo' %}
                             -
                         {% else %}
                             -
                         {% endif %}
                     </td>
                     <td>
-                        {% if sale.sale_type.lower() == 'per kilo' %}
-                            {{ sale.quantity|int }}
-                        {% elif sale.sale_type.lower() == 'per sack' and sale.sack_size %}
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            -
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per kilo' %}
+                            {{ sale.quantity|float|round(2) }}
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per sack' and sale.sack_size %}
                             -
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td>₱{{ '%.2f'|format(sale.unit_price if sale.unit_price is not none else sale.retail_price) }}</td>
-                    <td>{% if sale.sack_size %}{{ sale.sack_size }}{% else %}-{% endif %}</td>
-                    <td>{% if sale.sack_price %}₱{{ '%.2f'|format(sale.sack_price) }}{% else %}-{% endif %}</td>
                     <td>
-                        {% if sale.sale_type.lower() == 'per sack' and sale.sack_cost is not none and sale.sack_size %}
-                            {% set num_sacks = sale.quantity / sale.sack_size %}
-                            ₱{{ '%.2f'|format(sale.sack_cost * num_sacks) }}
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            -
                         {% else %}
-                            {% set cost_price = sale.cost_price if sale.cost_price is not none else 0 %}
-                            ₱{{ '%.2f'|format(sale.quantity * cost_price) }}
+                            {% set price = sale.unit_price if sale.unit_price is not none else (sale.get('retail_price') if sale.get('retail_price') is not none else None) %}
+                            {% if price is not none %}
+                                ₱{{ '%.2f'|format(price|float) }}
+                            {% else %}
+                                -
+                            {% endif %}
                         {% endif %}
                     </td>
-                    <td>₱{{ '%.2f'|format(sale.total if sale.total is not none else sale.quantity * sale.retail_price) }}</td>
                     <td>
-                        {% if sale.sale_type.lower() == 'per sack' and sale.sack_cost is not none and sale.sack_size %}
-                            {% set num_sacks = sale.quantity / sale.sack_size %}
-                            ₱{{ '%.2f'|format((sale.total if sale.total is not none else sale.quantity * sale.retail_price) - (sale.sack_cost * num_sacks)) }}
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}-{% elif sale.sack_size %}{{ sale.sack_size }}{% else %}-{% endif %}</td>
+                    <td>
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}-{% elif sale.sack_price %}₱{{ '%.2f'|format(sale.sack_price) }}{% else %}-{% endif %}</td>
+                    <td>
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            ₱{{ '%.2f'|format(sale.cost|float) }}
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per sack' and sale.sack_size and sale.sack_size > 0 %}
+                            {% set num_sacks = (sale.quantity|float / sale.sack_size|float) if sale.quantity else 0 %}
+                            {% set sack_cost_val = sale.sack_cost|float if sale.sack_cost is not none else (sale.cost_price|float if sale.cost_price is not none else 0) %}
+                            ₱{{ '%.2f'|format(num_sacks * sack_cost_val) }}
                         {% else %}
-                            {% set cost_price = sale.cost_price if sale.cost_price is not none else 0 %}
-                            ₱{{ '%.2f'|format((sale.total if sale.total is not none else sale.quantity * sale.retail_price) - (sale.quantity * cost_price)) }}
+                            {% set cost_price = sale.cost|float if sale.cost is not none else 0 %}
+                            ₱{{ '%.2f'|format(sale.quantity|float * cost_price) }}
+                        {% endif %}
+                    </td>
+                    <td>₱{{ '%.2f'|format(sale.total if sale.total is not none else (sale.quantity|float * (sale.get('retail_price')|float if sale.get('retail_price') is not none else 0))) }}</td>
+                    <td>
+                        {% if sale.sale_type and sale.sale_type.lower() == 'receivable' %}
+                            -
+                        {% elif sale.sale_type and sale.sale_type.lower() == 'per sack' and sale.sack_size %}
+                            {% set num_sacks = (sale.quantity|float / sale.sack_size|float) if sale.quantity and sale.sack_size else 0 %}
+                            {% set sack_cost_val = sale.sack_cost|float if sale.sack_cost is not none else (sale.cost_price|float if sale.cost_price is not none else 0) %}
+                            ₱{{ '%.2f'|format(sale.total|float - (sack_cost_val * num_sacks)) }}
+                        {% else %}
+                            {% set cost_price = sale.cost_price|float if sale.cost_price is not none else 0 %}
+                            ₱{{ '%.2f'|format(sale.total|float - (sale.quantity|float * cost_price)) }}
                         {% endif %}
                     </td>
                     <td>{{ sale.date | datetimeformat }}</td>

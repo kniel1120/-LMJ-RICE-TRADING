@@ -20,10 +20,10 @@
         <div style="margin-bottom:18px;">
             <b>Rice Type:</b> {{ item['product_name'] }}<br>
             {% if sale_type == 'sack' %}
-                <b>Sack Size:</b> {{ item['sack_size']|round(2) }} kg<br>
-                <b>Price per Sack:</b> ₱{{ item['sack_price']|round(2) }}
+                <b>Sack Size:</b> {{ item['sack_size']|float|round(2) }} kg<br>
+                <b>Price per Sack:</b> ₱{{ item['sack_price']|float|round(2) }}
             {% else %}
-                <b>Price per Kilo:</b> ₱{{ item['retail_price']|round(2) }}
+                <b>Price per Kilo:</b> ₱{{ item['retail_price']|float|round(2) }}
             {% endif %}
         </div>
         <form method="post" style="background:#f8fafc;border-radius:8px;padding:18px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">

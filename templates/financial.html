@@ -50,27 +50,27 @@
         <div class="summary">
             <div class="summary-card">
                 <div class="label">Revenue (Kilo)</div>
-                <div class="value">₱{{ revenue_kilo|round(2) }}</div>
+                <div class="value">₱{{ revenue_kilo|float|round(2) }}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Revenue (Sack)</div>
-                <div class="value">₱{{ revenue_sack|round(2) }}</div>
+                <div class="value">₱{{ revenue_sack|float|round(2) }}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Cost (Kilo)</div>
-                <div class="value">₱{{ cost_kilo|round(2) }}</div>
+                <div class="value">₱{{ cost_kilo|float|round(2) }}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Cost (Sack)</div>
-                <div class="value">₱{{ cost_sack|round(2) }}</div>
+                <div class="value">₱{{ cost_sack|float|round(2) }}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Expenses (Month)</div>
-                <div class="value">₱{{ total_expenses|round(2) }}</div>
+                <div class="value">₱{{ total_expenses|float|round(2) }}</div>
             </div>
             <div class="summary-card net">
                 <div class="label">Net (Month)</div>
-                <div class="value">₱{{ net|round(2) }}</div>
+                <div class="value">₱{{ net|float|round(2) }}</div>
             </div>
         </div>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -107,7 +107,7 @@
                     <tr>
                         <td>{{ e['date'] }}</td>
                         <td>{{ e['description'] }}</td>
-                        <td>₱{{ e['amount']|round(2) }}</td>
+                        <td>₱{{ e['amount']|float|round(2) }}</td>
                         <td>
                             <form method="post" action="/expenses/edit/{{ e['id'] }}" style="display:inline;">
                                 <button type="submit" class="menu-btn" style="padding:2px 10px;font-size:0.95rem;">Edit</button>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Receivables</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+        <div style="display:flex;justify-content:center;width:100%;">
+            <div style="width:100%;max-width:900px;">
+                <div style="margin-bottom:18px;text-align:left;">
+                    <a href="/" style="display:inline-block;padding:10px 22px;background:#4f8cff;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:10px;">&larr; Back to Dashboard</a>
+                </div>
+        <h2 style="font-family:Roboto,Arial,sans-serif;font-weight:700;color:#2d3a4b;margin-bottom:24px;text-align:center;">Account Receivables</h2>
+        <form method="post" action="/add_receivable" id="receivableForm" style="display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;margin:0 auto 24px auto;max-width:700px;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.10);padding:36px 28px;">
+            <input type="hidden" name="amount" id="hiddenAmount">
+            <input type="text" name="customer_name" placeholder="Name" required style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;" value="{{ session.receivable_prefill.customer_name if session.receivable_prefill is defined else '' }}">
+            <input type="text" name="address" placeholder="Address" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;" value="{{ session.receivable_prefill.address if session.receivable_prefill is defined else '' }}">
+            <input type="text" name="contact" placeholder="Contact #" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;" value="{{ session.receivable_prefill.contact if session.receivable_prefill is defined else '' }}">
+            <input type="date" name="due_date" required style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;" value="{{ session.receivable_prefill.due_date if session.receivable_prefill is defined else '' }}">
+            <select name="inventory_id" id="inventorySelect" required style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;">
+                <option value="">Select Rice Product</option>
+                {% for item in inventory %}
+                <option value="{{ item['id'] }}" data-type="{{ 'Per sack' if item['sack_size'] and item['sack_size'] > 0 else 'Per kilo' }}" data-unit-price="{{ item['retail_price'] }}" data-cost="{{ item['cost_price'] }}" data-sack-size="{{ item['sack_size'] if item['sack_size'] else '' }}" data-sack-price="{{ item['sack_price'] if item['sack_price'] else '' }}">{{ item['product_name'] }}</option>
+                {% endfor %}
+            </select>
+            <select name="sale_type" id="saleType" required style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;">
+                <option value="">Sale Type</option>
+                <option value="Per kilo">Per kilo</option>
+                <option value="Per sack">Per sack</option>
+            </select>
+            <div id="kiloFields" style="display:none;width:100%;gap:16px 24px;">
+                <input type="number" step="0.01" name="unit_price" id="unitPrice" placeholder="Unit Price" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+                <input type="number" step="0.01" name="cost" id="costKilo" placeholder="Cost per kg" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+                <input type="number" step="0.01" name="quantity" id="quantityKilo" placeholder="Quantity (kgs)" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;">
+                <input type="number" step="0.01" name="amount" id="amountKilo" placeholder="Amount" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+            </div>
+            <div id="sackFields" style="display:none;width:100%;gap:16px 24px;">
+                <input type="number" step="0.01" name="sack_price" id="sackPrice" placeholder="Sack Price" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+                <input type="number" step="0.01" name="cost" id="costSack" placeholder="Cost per sack" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+                <input type="number" step="0.01" name="sack_size" id="sackSize" placeholder="Sack Size (kg)" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+                <input type="number" step="1" name="sack_qty_count" id="quantitySack" placeholder="Number of Sacks" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;">
+                <input type="number" step="0.01" name="amount" id="amountSack" placeholder="Amount" readonly style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e8ee;background:#f3f3f3;">
+            </div>
+            <button type="submit" style="padding:12px 24px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;">Add Receivable</button>
+        </form>
+        <script>
+        const inventorySelect = document.getElementById('inventorySelect');
+        const saleType = document.getElementById('saleType');
+        const kiloFields = document.getElementById('kiloFields');
+        const sackFields = document.getElementById('sackFields');
+        // Auto-fill price/cost fields on inventory selection
+        // Ensure correct amount is set before submit
+        document.getElementById('receivableForm').addEventListener('submit', function(e) {
+            const saleTypeVal = saleType.value;
+            let amount = 0;
+            if (saleTypeVal === 'Per kilo') {
+                amount = parseFloat(document.getElementById('amountKilo').value) || 0;
+            } else if (saleTypeVal === 'Per sack') {
+                amount = parseFloat(document.getElementById('amountSack').value) || 0;
+            }
+            document.getElementById('hiddenAmount').value = amount.toFixed(2);
+        });
+        inventorySelect.addEventListener('change', function() {
+            const selected = inventorySelect.options[inventorySelect.selectedIndex];
+            const type = selected.getAttribute('data-type');
+            saleType.value = type;
+            if (type === 'Per kilo') {
+                kiloFields.style.display = 'flex';
+                sackFields.style.display = 'none';
+                document.getElementById('unitPrice').value = selected.getAttribute('data-unit-price') || '';
+                document.getElementById('costKilo').value = selected.getAttribute('data-cost') || '';
+            } else if (type === 'Per sack') {
+                kiloFields.style.display = 'none';
+                sackFields.style.display = 'flex';
+                document.getElementById('sackPrice').value = selected.getAttribute('data-sack-price') || '';
+                document.getElementById('costSack').value = selected.getAttribute('data-cost') || '';
+                document.getElementById('sackSize').value = selected.getAttribute('data-sack-size') || '';
+            } else {
+                kiloFields.style.display = 'none';
+                sackFields.style.display = 'none';
+            }
+        });
+        saleType.addEventListener('change', function() {
+            if (saleType.value === 'Per kilo') {
+                kiloFields.style.display = 'flex';
+                sackFields.style.display = 'none';
+            } else if (saleType.value === 'Per sack') {
+                kiloFields.style.display = 'none';
+                sackFields.style.display = 'flex';
+            } else {
+                kiloFields.style.display = 'none';
+                sackFields.style.display = 'none';
+            }
+        });
+        // Auto-calculate amount for kilo
+        document.getElementById('unitPrice').addEventListener('input', calcKiloAmount);
+        document.getElementById('quantityKilo').addEventListener('input', calcKiloAmount);
+        function calcKiloAmount() {
+            const price = parseFloat(document.getElementById('unitPrice').value) || 0;
+            const qty = parseFloat(document.getElementById('quantityKilo').value) || 0;
+            document.getElementById('amountKilo').value = (price * qty).toFixed(2);
+        }
+        // Auto-calculate amount for sack
+        document.getElementById('sackPrice').addEventListener('input', calcSackAmount);
+        document.getElementById('quantitySack').addEventListener('input', calcSackAmount);
+        function calcSackAmount() {
+            const price = parseFloat(document.getElementById('sackPrice').value) || 0;
+            const qty = parseFloat(document.getElementById('quantitySack').value) || 0;
+            document.getElementById('amountSack').value = (price * qty).toFixed(2);
+        }
+        </script>
+        <div style="margin-bottom:18px;text-align:right;">
+            <input type="text" id="searchBar" placeholder="Search by name, address, contact..." style="padding:10px;border-radius:8px;border:1px solid #e3e8ee;width:60%;">
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-family:Roboto,Arial,sans-serif;">
+            <thead>
+                <tr style="background:#f8fafc;">
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Name</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Address</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Contact #</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Amount</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Cost</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Partial Payment</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Balance</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Due Date</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Status</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Sacks Sold</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Kilos Sold</th>
+                    <th style="padding:10px;border-bottom:2px solid #e3e8ee;text-align:left;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="receivablesTable">
+                {% for r in receivables %}
+                <tr>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">{{ r[1] }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">{{ r[2] }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">{{ r[3] }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">₱{{ r[4]|float|round(2) }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">₱{{ r[8]|float|round(2) if r|length > 8 else '' }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">₱{{ r[5]|float|round(2) }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">₱{{ (r[4]|float - r[5]|float)|round(2) }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">{{ r[6] }}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">
+                        <select disabled style="padding:6px 12px;border-radius:6px;border:1px solid #e3e8ee;background:#f8fafc;">
+                            <option value="Pending" {% if r[7]=='Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Partial" {% if r[7]=='Partial' %}selected{% endif %}>Partial</option>
+                            <option value="Paid" {% if r[7]=='Paid' %}selected{% endif %}>Paid</option>
+                        </select>
+                    </td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">
+                        {% if r[9] == 'Per sack' %}
+                            {% if r[14] is defined and r[14] is not none and r[14] != 'undefined' %}{{ r[14]|float|round(2) }}{% else %}0{% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">
+                        {% if r[9] == 'Per kilo' %}
+                            {% if r[13] is defined and r[13] is not none and r[13] != 'undefined' and r[13] != '' %}{{ r[13]|float|round(2) }} kg{% else %}0 kg{% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td style="padding:8px;border-bottom:1px solid #e3e8ee;">
+                        <form method="post" action="/add_partial_payment" style="display:inline;margin-right:6px;">
+                            <input type="hidden" name="receivable_id" value="{{ r[0] }}">
+                            <input type="number" name="partial_amount" min="1" step="0.01" placeholder="Partial" style="width:70px;padding:4px 8px;border-radius:6px;border:1px solid #e3e8ee;">
+                            <button type="submit" style="padding:6px 12px;background:#f59e42;color:#fff;border:none;border-radius:6px;font-weight:600;">Add</button>
+                        </form>
+                        <form method="post" action="/mark_receivable_paid" style="display:inline;">
+                            <input type="hidden" name="receivable_id" value="{{ r[0] }}">
+                            <button type="submit" style="padding:6px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;font-weight:600;">Mark as Paid</button>
+                        </form>
+                        <form method="post" action="/delete_receivable" style="display:inline;margin-left:6px;">
+                            <input type="hidden" name="receivable_id" value="{{ r[0] }}">
+                            <button type="submit" style="padding:6px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-weight:600;">Delete</button>
+                        </form>
+                        {% if r[7] == 'Paid' %}<span style="color:#2563eb;font-weight:600;">Paid</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // Search bar filter
+        document.getElementById('searchBar').addEventListener('input', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#receivablesTable tr');
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -60,7 +60,7 @@
                 <tr>
                     <td>{{ expense['date'] }}</td>
                     <td>{{ expense['description'] }}</td>
-                    <td>₱{{ expense['amount']|round(2) }}</td>
+                    <td>₱{{ expense['amount']|float|round(2) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

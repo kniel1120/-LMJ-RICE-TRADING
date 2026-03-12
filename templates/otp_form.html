@@ -33,7 +33,7 @@
             </form>
         {% endif %}
         <div style="margin-top:18px;">
-            <a href="/financial" class="menu-btn" style="background:#888;">Cancel</a>
+            <a href="{{ '/sales' if is_sale else '/financial' }}" class="menu-btn" style="background:#888;">Cancel</a>
         </div>
     </div>
 </body>

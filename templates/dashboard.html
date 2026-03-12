@@ -208,6 +208,7 @@
                             <a href="/inventory" class="menu-btn glow-btn">Inventory</a>
                             <a href="/sales" class="menu-btn glow-btn">Sales</a>
                             <a href="/financial" class="menu-btn glow-btn">Financial Statement</a>
+                            <a href="/account_receivables" class="menu-btn glow-btn">Account Receivables</a>
                         </div>
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
@@ -222,11 +223,11 @@
                                 <div class="inventory-card" onclick="selectRice('{{ item.id }}', '{{ item.product_name }}', '{{ item.retail_price }}', '{{ item.sack_price }}', '{{ item.kilos_left }}', '{{ item.sacks_left }}')">
                                     <div class="rice-title">{{ item.product_name }}</div>
                                     {% if item.stock_type == 'sack' %}
-                                        <div class="rice-price">₱{{ item.sack_price|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ sack</span></div>
-                                        <div class="rice-stock">Stock: {{ item.sacks_left }} sack(s) ({{ item.sack_size|round(2) }} kg/sack)</div>
+                                        <div class="rice-price">₱{{ item.sack_price|float|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ sack</span></div>
+                                        <div class="rice-stock">Stock: {{ item.sacks_left|float|round(2) }} sack(s) ({{ item.sack_size|float|round(2) }} kg/sack)</div>
                                     {% else %}
-                                        <div class="rice-price">₱{{ item.retail_price|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ kg</span></div>
-                                        <div class="rice-stock">Stock: {{ item.kilos_left|round(2) }} kg</div>
+                                        <div class="rice-price">₱{{ item.retail_price|float|round(2) }} <span style="font-size:0.98rem;font-weight:400;">/ kg</span></div>
+                                        <div class="rice-stock">Stock: {{ item.kilos_left|float|round(2) }} kg</div>
                                     {% endif %}
                                 </div>
                             {% endfor %}
@@ -240,6 +241,13 @@
                                     <input type="number" id="quantity" name="quantity" min="0.01" step="0.01" required placeholder="Enter quantity" style="width:100%;margin-bottom:12px;">
                                     <div id="priceInfo" style="margin-bottom:8px;text-align:center;"></div>
                                     <div id="totalInfo" style="font-weight:600;text-align:center;"></div>
+                                    <div style="margin: 12px 0; text-align:center;">
+                                        <label style="font-weight:600; margin-right:12px;">Payment Type:</label>
+                                        <input type="radio" id="cash" name="payment_type" value="Cash" checked>
+                                        <label for="cash">Cash</label>
+                                        <input type="radio" id="paylater" name="payment_type" value="Paylater">
+                                        <label for="paylater">Paylater</label>
+                                    </div>
                                 </div>
                                 <button type="submit" class="process-btn">Process Sale</button>
                         </form>
@@ -261,6 +269,8 @@
                             var priceInfo = document.getElementById('priceInfo');
                             var totalInfo = document.getElementById('totalInfo');
                             var quantityInput = document.getElementById('quantity');
+                            var cashRadio = document.getElementById('cash');
+                            var paylaterRadio = document.getElementById('paylater');
                             form.reset();
                             form.style.display = 'block';
                             document.getElementById('rice_id').value = id;
@@ -287,6 +297,9 @@
                                 let total = qty * price;
                                 totalInfo.innerText = 'Total: ₱' + total.toFixed(2);
                             };
+                            // Reset payment type to Cash
+                            cashRadio.checked = true;
+                            paylaterRadio.checked = false;
                             form.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     </script>
