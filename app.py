@@ -656,15 +656,12 @@ def edit_expense(expense_id):
             # Send OTP via SMS
             sms_message = f"Your LMJ POS OTP for editing expense #{expense_id} is: {otp}"
             sms_payload = {
-                'recipient': SMS_RECIPIENT,
+                'apikey': SMS_API_KEY,
+                'number': SMS_RECIPIENT,
                 'message': sms_message
             }
-            sms_headers = {
-                'x-api-key': SMS_API_KEY,
-                'Content-Type': 'application/json'
-            }
             try:
-                requests.post('https://api.semaphore.co/api/v4/messages', json=sms_payload, headers=sms_headers, timeout=10)
+                requests.post('https://api.semaphore.co/api/v4/messages', data=sms_payload, timeout=10)
             except Exception as e:
                 flash('Failed to send OTP SMS. Please try again.', 'error')
                 return redirect(url_for('financial'))
@@ -716,15 +713,12 @@ def edit_sale(sale_id):
             # Send OTP via SMS
             sms_message = f"Your LMJ POS OTP for editing sale #{sale_id} is: {otp}"
             sms_payload = {
-                'recipient': SMS_RECIPIENT,
+                'apikey': SMS_API_KEY,
+                'number': SMS_RECIPIENT,
                 'message': sms_message
             }
-            sms_headers = {
-                'x-api-key': SMS_API_KEY,
-                'Content-Type': 'application/json'
-            }
             try:
-                requests.post('https://api.semaphore.co/api/v4/messages', json=sms_payload, headers=sms_headers, timeout=10)
+                requests.post('https://api.semaphore.co/api/v4/messages', data=sms_payload, timeout=10)
             except Exception as e:
                 flash('Failed to send OTP SMS. Please try again.', 'error')
                 return redirect(url_for('sales'))
